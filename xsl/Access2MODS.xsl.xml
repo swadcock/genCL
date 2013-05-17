@@ -1,0 +1,506 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<xsl:transform version="2.0"
+        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:fn="urn:cgkn:geochemistry:xsl:functions"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.loc.gov/mods/v3"
+        exclude-result-prefixes="#all" >
+
+  <xsl:output method="xml" indent="yes" omit-xml-declaration="yes" 
+        encoding="UTF-8" />
+
+<!-- ======================================================================= -->
+
+  <xsl:param name="spChr" select="'||'"/>
+
+<!-- ======================================================================= -->
+
+  <xsl:template match="@*|node()">
+    <xsl:apply-templates />
+  </xsl:template>
+
+  <xsl:template match="dataroot">
+
+    <modsCollection>
+
+      <xsl:attribute name="xsi:schemaLocation">
+<!--
+        <xsl:text>http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-2.xsd</xsl:text>
+-->
+        <xsl:text>http://www.loc.gov/mods/v3 ./mods/mods_3_4.xsd.xml</xsl:text>
+      </xsl:attribute>
+
+      <xsl:for-each select="MODS_Export_BMD">
+
+        <mods>
+
+          <xsl:call-template name="docTitle" />
+
+          <typeOfResource>
+            <xsl:text>text</xsl:text>
+          </typeOfResource>
+
+          <targetAudience authority="genCL">
+            <xsl:text>Genealogists</xsl:text>
+          </targetAudience>
+
+          <genre authority="local">
+            <xsl:text>document</xsl:text>
+          </genre>
+
+          <genre authority="genCL">
+            <xsl:value-of select="Item_Type" />
+          </genre>
+
+          <genre authority="genCL">
+            <xsl:text>BMD Certificate</xsl:text>
+          </genre>
+
+          <xsl:call-template name="docPeople">
+            <xsl:with-param name="P1_surname" select="string(Surname_1)" />
+            <xsl:with-param name="P1_given" select="string(GivenNames_1)" />
+            <xsl:with-param name="P2_surname" select="string(Surname_2)" />
+            <xsl:with-param name="P2_given" select="string(GivenNames_2)" />
+            <xsl:with-param name="C_Type" select="Doc_Type_Short" />
+            <xsl:with-param name="gender" select="Gender" />
+          </xsl:call-template>
+
+          <xsl:call-template name="OriginInfo">
+            <xsl:with-param name="regAuthority" select="string(Reg_Authority)" />
+            <xsl:with-param name="regDistrict" select="string(Reg_District)" />
+            <xsl:with-param name="MarriageDate" select="string(Marriage_Date)" />
+            <xsl:with-param name="AcquisitionDate" select="string(Purchased)" />
+          </xsl:call-template>
+
+          <abstract>
+            <xsl:value-of select="'-'"/>
+          </abstract>
+
+          <language>
+            <languageTerm type="text">
+              <xsl:text>English</xsl:text>
+            </languageTerm>
+          </language>
+
+          <xsl:call-template name="NotesInfo">
+            <xsl:with-param name="noteText" select="string(Location)" />
+            <xsl:with-param name="noteType" select="'venue'" />
+          </xsl:call-template>
+
+          <xsl:if test="Doc_Type_Short = 'marr.cert.'">
+            <xsl:call-template name="NotesInfo">
+              <xsl:with-param name="noteText" 
+                   select="fn:cslRecipients(Surname_1, GivenNames_1,
+                   Surname_2, GivenNames_2)" />
+              <xsl:with-param name="noteType" select="'performers'" />
+            </xsl:call-template>
+          </xsl:if>
+
+          <xsl:if test="Reg_Authority">
+            <xsl:call-template name="NotesInfo">
+              <xsl:with-param name="noteText" 
+                   select="fn:cslSource(Reg_Authority, Reg_District,
+                   Index_Quarter, Index_Year, Index_Volume, Index_Page)" />
+              <xsl:with-param name="noteType" select="'reference'" />
+            </xsl:call-template>
+          </xsl:if>
+
+          <!-- Date of acquisition -->
+          <xsl:call-template name="NotesInfo">
+            <xsl:with-param name="noteText" select="string(Purchased)" />
+            <xsl:with-param name="noteType" select="'acquisition'" />
+          </xsl:call-template>
+
+
+          <xsl:call-template name="modsLocation">
+            <xsl:with-param name="itemID" select="Item_ID" />
+            <xsl:with-param name="physicalLocation" select="string(Physical_Location)" />
+            <xsl:with-param name="subLocation" select="string(subLocation)" />
+            <xsl:with-param name="shelfLocator" select="string(shelfLocator)" />
+            <xsl:with-param name="DigitalFile" select="string(DigitalFile)" />
+            <xsl:with-param name="URL" select="string(URL)" />
+          </xsl:call-template>
+
+          <xsl:call-template name="modsSubject">
+            <xsl:with-param name="subjectText" select="fn:eventType(Doc_Type_Short)" />
+            <xsl:with-param name="subjectAuthority" select="'genCL'" />
+          </xsl:call-template>
+
+          <identifier type="local">
+            <xsl:value-of select="Identifier" />
+          </identifier>
+
+          <xsl:call-template name="RelatedItem">
+            <xsl:with-param name="regAuthority" select="string(Reg_Authority)" />
+            <xsl:with-param name="regDistrict" select="string(Reg_District)" />
+            <xsl:with-param name="regQuarter" select="string(Index_Quarter)" />
+            <xsl:with-param name="regYear" select="string(Index_Year)" />
+            <xsl:with-param name="regVolume" select="string(Index_Volume)" />
+            <xsl:with-param name="regPage" select="string(Index_Page)" />
+          </xsl:call-template>
+
+        </mods>
+
+      </xsl:for-each>
+
+    </modsCollection>
+
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="modsSubject">
+    <xsl:param name="subjectText" as="xs:string" />
+    <xsl:param name="subjectAuthority" as="xs:string" />
+
+    <subject> 
+      <xsl:attribute name="authority">
+        <xsl:value-of select="$subjectAuthority" />
+      </xsl:attribute>
+      <topic>
+        <xsl:value-of select="$subjectText" />
+      </topic>
+    </subject> 
+
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="modsLocation">
+    <xsl:param name="itemID" as="node()" required="yes"/>
+    <xsl:param name="physicalLocation" as="xs:string" required="yes" />
+    <xsl:param name="subLocation" as="xs:string" required="yes" />
+    <xsl:param name="shelfLocator" as="xs:string" required="yes" />
+    <xsl:param name="DigitalFile" as="xs:string" required="yes" />
+    <xsl:param name="URL" as="xs:string" required="yes" />
+
+    <location> 
+      <physicalLocation>
+        <xsl:value-of select="$physicalLocation" />
+      </physicalLocation>
+      <url>
+        <xsl:value-of select="$URL" />
+      </url>
+      <holdingSimple>
+        <copyInformation>
+          <subLocation>
+            <xsl:value-of select="$subLocation" />
+          </subLocation>
+          <shelfLocator>
+            <xsl:value-of select="$shelfLocator" />
+          </shelfLocator>
+          <electronicLocator>
+            <xsl:value-of select="$DigitalFile" />
+          </electronicLocator>
+          <note>
+            <xsl:text>Additional location details</xsl:text>
+          </note>
+        </copyInformation>
+      </holdingSimple>
+    </location> 
+
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="RelatedItem">
+    <xsl:param name="regAuthority" as="xs:string" required="yes" />
+    <xsl:param name="regDistrict" as="xs:string" required="yes" />
+    <xsl:param name="regQuarter" as="xs:string" required="yes" />
+    <xsl:param name="regYear" as="xs:string" required="yes" />
+    <xsl:param name="regVolume" as="xs:string" required="yes" />
+    <xsl:param name="regPage" as="xs:string" required="yes" />
+
+    <xsl:if test="string-length($regAuthority) &gt; 0">
+
+      <relatedItem type="host">
+        <titleInfo>
+          <title>
+            <xsl:text>BMD Index</xsl:text>
+          </title>
+        </titleInfo>
+        <originInfo>
+          <issuance>
+            <xsl:text>continuing</xsl:text>
+          </issuance>
+        </originInfo>
+        <genre>index</genre>
+        <part>
+          <date>
+            <xsl:value-of select="concat($regQuarter, ' ', $regYear)"/>
+          </date>
+          <detail type="volume">
+            <number>
+              <xsl:value-of select="$regVolume"/>
+            </number>
+          </detail>
+          <detail type="page">
+            <number>
+              <xsl:value-of select="$regPage"/>
+            </number>
+          </detail>
+        </part>
+
+      </relatedItem>
+
+    </xsl:if>
+
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="NotesInfo">
+    <xsl:param name="noteType" as="xs:string" required="no" select="'NULL'" />
+    <xsl:param name="noteText" as="xs:string" required="yes" />
+
+    <xsl:if test="string-length($noteText) &gt; 0">
+      <note type="source note">
+        <xsl:if test="$noteType != 'NULL'">
+          <xsl:attribute name="type">
+            <xsl:value-of select="$noteType" />
+          </xsl:attribute>
+        </xsl:if>
+        <xsl:value-of select="$noteText" />
+      </note>
+    </xsl:if>
+
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="OriginInfo">
+    <xsl:param name="regAuthority" as="xs:string" required="yes" />
+    <xsl:param name="regDistrict" as="xs:string" required="yes" />
+    <xsl:param name="MarriageDate" as="xs:string" required="yes" />
+    <xsl:param name="AcquisitionDate" as="xs:string" required="yes" />
+
+    <originInfo>
+
+      <xsl:if test="string-length($regAuthority) &gt; 0">
+        <publisher>
+          <xsl:value-of select="concat($regAuthority,', ', $regDistrict, ' District')"/>
+        </publisher>
+        <dateCreated>
+          <xsl:value-of select="fn:dateFormatted(xs:dateTime($MarriageDate))"/>
+        </dateCreated>
+      </xsl:if>
+
+      <issuance>
+        <xsl:text>monographic</xsl:text>
+      </issuance>
+
+      <xsl:if test="string-length($AcquisitionDate) &gt; 0">
+        <dateCaptured>
+          <xsl:value-of select="fn:dateFormatted(xs:dateTime($AcquisitionDate))" />
+        </dateCaptured>
+      </xsl:if>
+
+    </originInfo>
+
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="docPeople">
+    <xsl:param name="P1_surname" as="xs:string" required="yes" />
+    <xsl:param name="P1_given" as="xs:string" required="yes" />
+    <xsl:param name="P2_surname" as="xs:string" required="yes" />
+    <xsl:param name="P2_given" as="xs:string" required="yes" />
+    <xsl:param name="C_Type" as="xs:string" required="yes" />
+    <xsl:param name="gender" as="xs:string" required="yes" />
+
+    <name type="personal">
+      <namePart type="given">
+        <xsl:value-of select="$P1_given"/>
+      </namePart>
+      <namePart type="family">
+        <xsl:value-of select="$P1_surname"/>
+      </namePart>
+      <role>
+        <roleTerm authority="marcrelator" type="text">
+          <xsl:text>author</xsl:text>
+        </roleTerm>
+        <roleTerm authority="zotero" type="text">
+          <xsl:text>author</xsl:text>
+        </roleTerm>
+        <roleTerm authority="genCL" type="text">
+          <xsl:text>recipient</xsl:text>
+        </roleTerm>
+        <roleTerm authority="genCL" type="text">
+          <xsl:value-of select="fn:role_genCL($C_Type, $gender)" />
+        </roleTerm>
+      </role>
+    </name>
+
+    <!-- wife -->
+    <xsl:if test="$C_Type = 'marr. cert.'">
+      <name type="personal">
+        <namePart type="given">
+          <xsl:value-of select="$P2_given"/>
+        </namePart>
+        <namePart type="family">
+          <xsl:value-of select="$P2_surname"/>
+        </namePart>
+        <role>
+          <roleTerm authority="marcrelator" type="text">
+            <xsl:text>author</xsl:text>
+          </roleTerm>
+          <roleTerm authority="zotero" type="text">
+            <xsl:text>author</xsl:text>
+          </roleTerm>
+          <roleTerm authority="genCL" type="text">
+            <xsl:text>recipient</xsl:text>
+          </roleTerm>
+          <roleTerm authority="genCL" type="text">
+            <xsl:text>wife</xsl:text>
+          </roleTerm>
+        </role>
+      </name>
+    </xsl:if>
+ 
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="docTitle">
+
+    <titleInfo>
+
+      <title>
+        <xsl:value-of select="Doc_Type" />
+      </title>
+
+    </titleInfo>
+
+    <titleInfo type="abbreviated">
+
+      <title>
+        <xsl:value-of select="Doc_Type_Short" />
+      </title>
+
+    </titleInfo>
+
+  </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:function name="fn:dateFormatted" as="xs:string">
+    <xsl:param name="inDate" as="xs:dateTime"/>
+
+<!--
+    <xsl:variable name="d1" select="substring-before($inDate,'T')"/>
+-->
+    <xsl:sequence select="format-dateTime($inDate,'[Y]-[M,2]-[D,2]')" />
+
+  </xsl:function>
+
+<!-- ======================================================================= -->
+
+  <xsl:function name="fn:role_genCL" as="xs:string">
+    <xsl:param name="C_Type" as="xs:string"/>
+    <xsl:param name="gender" as="xs:string"/>
+
+     <xsl:choose>
+        <xsl:when test="$C_Type='marr. cert.'">
+          <xsl:sequence select="'husband'" />
+        </xsl:when>
+        <xsl:when test="$C_Type='birth cert.'">
+          <xsl:sequence select="'child'" />
+        </xsl:when>
+        <xsl:when test="$C_Type='death cert.'">
+          <xsl:sequence select="'deceased'" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'?'" />
+        </xsl:otherwise>
+      </xsl:choose>
+    
+  </xsl:function>
+
+<!-- ======================================================================= -->
+
+  <xsl:function name="fn:eventType" as="xs:string">
+    <xsl:param name="C_Type" as="xs:string"/>
+
+     <xsl:choose>
+        <xsl:when test="$C_Type='marr. cert.'">
+          <xsl:sequence select="'marriage'" />
+        </xsl:when>
+        <xsl:when test="$C_Type='birth cert.'">
+          <xsl:sequence select="'birth'" />
+        </xsl:when>
+        <xsl:when test="$C_Type='death cert.'">
+          <xsl:sequence select="'death'" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'?'" />
+        </xsl:otherwise>
+      </xsl:choose>
+    
+  </xsl:function>
+
+<!-- ======================================================================= -->
+
+  <xsl:function name="fn:cslRecipients" as="xs:string">
+    <xsl:param name="surname_1" as="xs:string"/>
+    <xsl:param name="givennames_1" as="xs:string"/>
+    <xsl:param name="surname_2" as="xs:string"/>
+    <xsl:param name="givennames_2" as="xs:string"/>
+
+    <xsl:sequence select="concat('recipient:', $surname_1, ', ', $givennames_1,
+         $spChr,'recipient:', $surname_2, ', ', $givennames_2)" />
+
+  </xsl:function>
+
+<!-- ======================================================================= -->
+
+  <xsl:function name="fn:cslSource" as="xs:string">
+    <xsl:param name="regAuthority" as="node()"/>
+    <xsl:param name="regDistrict" as="node()"/>
+    <xsl:param name="regQuarter" as="node()"/>
+    <xsl:param name="regYear" as="node()"/>
+    <xsl:param name="regVolume" as="node()"/>
+    <xsl:param name="regPage" as="node()"/>
+
+    <xsl:variable name="rAuthority" as="xs:string">
+      <xsl:value-of select="$regAuthority" />
+    </xsl:variable>
+
+    <xsl:variable name="rDistrict" as="xs:string">
+      <xsl:value-of select="$regDistrict" />
+    </xsl:variable>
+
+    <xsl:variable name="rQuarter" as="xs:string">
+      <xsl:value-of select="$regQuarter" />
+    </xsl:variable>
+
+    <xsl:variable name="rYear" as="xs:string">
+      <xsl:value-of select="$regYear" />
+    </xsl:variable>
+
+    <xsl:variable name="rVolume" as="xs:string">
+      <xsl:value-of select="$regVolume" />
+    </xsl:variable>
+
+    <xsl:variable name="rPage" as="xs:string">
+      <xsl:value-of select="$regPage" />
+    </xsl:variable>
+
+    <xsl:variable name="nameIndex">
+      <xsl:choose>
+        <xsl:when test="$rAuthority='General Register Office, England and Wales'">
+          <xsl:value-of select="'BMD Index'" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'?'" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:sequence select="concat($nameIndex, ', ', $rDistrict, ', ', $rQuarter, ' ',
+         $rYear, ', vol ', $rVolume, ', page ', $rPage)" />
+
+  </xsl:function>
+
+</xsl:transform>
