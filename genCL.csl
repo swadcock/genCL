@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="in-text">
+  <info>
+    <title>Genealogy - BMD Certificates (04)</title>
+    <id>http://www.zotero.org/styles/test_swa04</id>
+    <link href="http://www.zotero.org/styles/test_swa04" rel="self"/>
+    <author>
+      <name>Stephen W. Adcock</name>
+    </author>
+    <updated>2013-04-25T00:00:00+00:00</updated>
+  </info>
+
+  <macro name="people">
+    <names variable="author">
+       <name name-as-sort-order="all" and="symbol" />
+    </names>
+ </macro>
+
+  <macro name="eventDate">
+    <date variable="issued">
+      <date-part name="day" suffix=" " />
+      <date-part name="month" suffix=" " />
+      <date-part name="year" suffix=" " />
+    </date>
+  </macro>
+
+  <macro name="extraNotes">
+    <text variable="abstract" suffix="; "/>
+    <text variable="note" suffix="."/>
+  </macro>
+
+  <macro name="physicalLocation">
+    <text variable="archive" suffix="; "/>
+    <text variable="archive_location" suffix="."/>
+  </macro>
+
+  <macro name="callNumber">
+    <text variable="call-number"/>
+  </macro>
+
+  <citation>
+    <layout>
+      <text variable="title"/>
+    </layout>
+  </citation>
+
+  <bibliography>
+    <layout>
+      <group suffix="; ">
+        <text macro="people"/>
+      </group>
+      <group prefix=" [" suffix="] ">
+        <text macro="eventDate"/>
+      </group> 
+      <group suffix="; ">
+        <text variable="title"/>
+      </group>
+      <group suffix="; ">
+        <text variable="publisher"/>
+      </group>
+      <group suffix=". ">
+        <text variable="source"/>
+      </group>
+      <group display="indent" prefix=" [" suffix="] ">
+        <text macro="callNumber" />
+      </group>
+      <group display="indent" prefix=" [" suffix="] ">
+        <text macro="extraNotes" />
+      </group>
+      <group display="indent" prefix=" [" suffix="] ">
+        <text macro="physicalLocation" />
+      </group>
+    </layout>
+  </bibliography>
+
+</style>

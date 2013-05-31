@@ -70,7 +70,7 @@
           <xsl:call-template name="OriginInfo">
             <xsl:with-param name="regAuthority" select="string(Reg_Authority)" />
             <xsl:with-param name="regDistrict" select="string(Reg_District)" />
-            <xsl:with-param name="MarriageDate" select="string(Marriage_Date)" />
+            <xsl:with-param name="eventDate" select="string(Event_Date)" />
             <xsl:with-param name="AcquisitionDate" select="string(Purchased)" />
           </xsl:call-template>
 
@@ -273,7 +273,7 @@
   <xsl:template name="OriginInfo">
     <xsl:param name="regAuthority" as="xs:string" required="yes" />
     <xsl:param name="regDistrict" as="xs:string" required="yes" />
-    <xsl:param name="MarriageDate" as="xs:string" required="yes" />
+    <xsl:param name="eventDate" as="xs:string" required="yes" />
     <xsl:param name="AcquisitionDate" as="xs:string" required="yes" />
 
     <originInfo>
@@ -283,7 +283,7 @@
           <xsl:value-of select="concat($regAuthority,', ', $regDistrict, ' District')"/>
         </publisher>
         <dateCreated>
-          <xsl:value-of select="fn:dateFormatted(xs:dateTime($MarriageDate))"/>
+          <xsl:value-of select="$eventDate"/>
         </dateCreated>
       </xsl:if>
 
@@ -293,7 +293,7 @@
 
       <xsl:if test="string-length($AcquisitionDate) &gt; 0">
         <dateCaptured>
-          <xsl:value-of select="fn:dateFormatted(xs:dateTime($AcquisitionDate))" />
+          <xsl:value-of select="fn:dateFormatted(xs:date($AcquisitionDate))" />
         </dateCaptured>
       </xsl:if>
 
@@ -387,12 +387,12 @@
 <!-- ======================================================================= -->
 
   <xsl:function name="fn:dateFormatted" as="xs:string">
-    <xsl:param name="inDate" as="xs:dateTime"/>
+    <xsl:param name="inDate" as="xs:date"/>
 
 <!--
     <xsl:variable name="d1" select="substring-before($inDate,'T')"/>
 -->
-    <xsl:sequence select="format-dateTime($inDate,'[Y]-[M,2]-[D,2]')" />
+    <xsl:sequence select="format-date($inDate,'[Y]-[M,2]-[D,2]')" />
 
   </xsl:function>
 
