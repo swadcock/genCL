@@ -10,7 +10,7 @@ genealogical software.  The rationale behind it is described in a 2013-06-05
 The project includes the following files
 
 <table>
-<caption>File List</caption>
+<caption><b>File List</b></caption>
 <thead>
 <th>File name</th>
 <th>Description</th>
